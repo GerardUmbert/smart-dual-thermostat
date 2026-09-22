@@ -1,0 +1,13 @@
+{
+  "domain": "smart_dual_thermostat",
+  "name": "Smart Dual Thermostat",
+  "codeowners": [],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/GerardUmbert/smart-dual-thermostat",
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/GerardUmbert/smart-dual-thermostat/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

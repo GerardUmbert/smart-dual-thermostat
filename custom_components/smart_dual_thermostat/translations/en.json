@@ -1,0 +1,123 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Smart Dual Thermostat",
+        "description": "House-wide settings. You'll pair heat/cool actuators into zones next.",
+        "data": {
+          "outdoor_sensor": "Default outdoor temperature sensor",
+          "season_mode": "Season detection",
+          "notify_service": "Notification service (optional)",
+          "away_entity": "Away mode entity (optional)"
+        }
+      },
+      "zone": {
+        "title": "Add a zone",
+        "description": "A zone pairs one heating actuator with one cooling actuator (e.g. a floor, or the whole house). Leave either blank if this zone only heats or only cools.",
+        "data": {
+          "name": "Zone name",
+          "heat_entity": "Heating actuator",
+          "heat_scale": "Heating actuator scale correction",
+          "heat_offset": "Heating actuator offset correction",
+          "cool_entity": "Cooling actuator",
+          "cool_scale": "Cooling actuator scale correction",
+          "cool_offset": "Cooling actuator offset correction",
+          "cool_fan_entities": "Supporting fans (cooling)",
+          "indoor_sensor": "Indoor temperature sensor (optional)",
+          "outdoor_sensor_override": "Outdoor sensor override (optional)",
+          "cool_min": "Cool: minimum settable",
+          "cool_relaxed": "Cool: relaxed maintenance point",
+          "cool_max": "Cool: maximum ceiling",
+          "heat_min": "Heat: minimum settable",
+          "heat_relaxed": "Heat: relaxed maintenance point",
+          "heat_max": "Heat: maximum ceiling"
+        }
+      },
+      "zone_add_another": {
+        "title": "Add another zone?",
+        "description": "{zone_count} zone(s) configured so far.",
+        "data": {
+          "add_another": "Add another zone"
+        }
+      }
+    },
+    "error": {
+      "zone_needs_actuator": "A zone needs at least a heating or a cooling actuator."
+    },
+    "abort": {
+      "already_configured": "Already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Smart Dual Thermostat settings",
+        "data": {
+          "outdoor_sensor": "Default outdoor temperature sensor",
+          "season_mode": "Season detection",
+          "notify_service": "Notification service (optional)",
+          "away_entity": "Away mode entity (optional)"
+        }
+      },
+      "add_zone": {
+        "title": "Add another zone?",
+        "data": {
+          "add_zone": "Add a new zone"
+        }
+      },
+      "zone": {
+        "title": "Add a zone",
+        "data": {
+          "name": "Zone name",
+          "heat_entity": "Heating actuator",
+          "heat_scale": "Heating actuator scale correction",
+          "heat_offset": "Heating actuator offset correction",
+          "cool_entity": "Cooling actuator",
+          "cool_scale": "Cooling actuator scale correction",
+          "cool_offset": "Cooling actuator offset correction",
+          "cool_fan_entities": "Supporting fans (cooling)",
+          "indoor_sensor": "Indoor temperature sensor (optional)",
+          "outdoor_sensor_override": "Outdoor sensor override (optional)",
+          "cool_min": "Cool: minimum settable",
+          "cool_relaxed": "Cool: relaxed maintenance point",
+          "cool_max": "Cool: maximum ceiling",
+          "heat_min": "Heat: minimum settable",
+          "heat_relaxed": "Heat: relaxed maintenance point",
+          "heat_max": "Heat: maximum ceiling"
+        }
+      }
+    },
+    "error": {
+      "zone_needs_actuator": "A zone needs at least a heating or a cooling actuator."
+    }
+  },
+  "selector": {
+    "season_mode": {
+      "options": {
+        "hemisphere": "Automatic (from your location's hemisphere)",
+        "custom_months": "Custom month table",
+        "temp_only": "Outdoor temperature only (no season weighting)"
+      }
+    }
+  },
+  "entity": {
+    "select": {
+      "forced_mode": {
+        "name": "Mode",
+        "state": {
+          "auto": "Auto",
+          "heat": "Heat",
+          "cool": "Cool"
+        }
+      }
+    },
+    "number": {
+      "cool_min": { "name": "Cool minimum" },
+      "cool_relaxed": { "name": "Cool relaxed" },
+      "cool_max": { "name": "Cool maximum" },
+      "heat_min": { "name": "Heat minimum" },
+      "heat_relaxed": { "name": "Heat relaxed" },
+      "heat_max": { "name": "Heat maximum" }
+    }
+  }
+}
