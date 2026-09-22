@@ -81,6 +81,7 @@ class ZoneConfig:
     comfort: ComfortRange
     indoor_sensor: str | None
     outdoor_sensor: str | None
+    temp_step: float = 0.5
 
 
 class ZoneCoordinator:

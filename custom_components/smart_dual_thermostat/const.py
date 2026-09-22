@@ -44,6 +44,14 @@ CONF_COOL_FAN_ENTITIES = "cool_fan_entities"  # list of fan.* to turn on/off alo
 CONF_ZONE_OUTDOOR_SENSOR_OVERRIDE = "outdoor_sensor_override"  # falls back to hub-level CONF_OUTDOOR_SENSOR
 CONF_ZONE_INDOOR_SENSOR = "indoor_sensor"  # optional dedicated indoor temp sensor for relax detection
 
+CONF_ZONE_TEMP_STEP = "temp_step"  # target temperature increment for this zone's dial
+# Temperature UNIT is not configurable per zone or per hub — it always
+# follows Home Assistant's own system-wide unit (hass.config.units), same
+# as every other climate integration. Only the STEP (increment) is
+# configurable, since some actuators only support whole-degree steps.
+DEFAULT_TEMP_STEP_CELSIUS = 0.5
+DEFAULT_TEMP_STEP_FAHRENHEIT = 1.0
+
 # comfort range, per mode (6 values total, mirrors termostato_virtual's 6 input_numbers)
 CONF_COOL_MIN = "cool_min"
 CONF_COOL_RELAXED = "cool_relaxed"

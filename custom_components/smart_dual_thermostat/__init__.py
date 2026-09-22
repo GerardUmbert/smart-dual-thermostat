@@ -36,12 +36,14 @@ from .const import (
     CONF_ZONE_INDOOR_SENSOR,
     CONF_ZONE_NAME,
     CONF_ZONE_OUTDOOR_SENSOR_OVERRIDE,
+    CONF_ZONE_TEMP_STEP,
     CONF_ZONES,
     DEFAULT_COOL_SEASON_HEAT_OVERRIDE_BELOW,
     DEFAULT_HEAT_SEASON_COOL_OVERRIDE_ABOVE,
     DEFAULT_NEUTRAL_COOL_ABOVE,
     DEFAULT_NEUTRAL_HEAT_BELOW,
     DEFAULT_SEASON_MODE,
+    DEFAULT_TEMP_STEP_CELSIUS,
     DOMAIN,
     FORCED_MODE_AUTO,
     PLATFORMS,
@@ -86,6 +88,7 @@ def _build_zone_coordinator(hass: HomeAssistant, entry: ConfigEntry, zone_data: 
         comfort=comfort,
         indoor_sensor=zone_data.get(CONF_ZONE_INDOOR_SENSOR),
         outdoor_sensor=zone_data.get(CONF_ZONE_OUTDOOR_SENSOR_OVERRIDE),
+        temp_step=zone_data.get(CONF_ZONE_TEMP_STEP, DEFAULT_TEMP_STEP_CELSIUS),
     )
 
     return ZoneCoordinator(

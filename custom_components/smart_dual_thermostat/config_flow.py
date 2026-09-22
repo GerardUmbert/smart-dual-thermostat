@@ -17,7 +17,8 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.core import callback
+from homeassistant.const import UnitOfTemperature
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import selector
 
 from .const import (
@@ -42,6 +43,7 @@ from .const import (
     CONF_ZONE_INDOOR_SENSOR,
     CONF_ZONE_NAME,
     CONF_ZONE_OUTDOOR_SENSOR_OVERRIDE,
+    CONF_ZONE_TEMP_STEP,
     CONF_ZONES,
     DEFAULT_COOL_MAX,
     DEFAULT_COOL_MIN,
@@ -50,11 +52,25 @@ from .const import (
     DEFAULT_HEAT_MIN,
     DEFAULT_HEAT_RELAXED,
     DEFAULT_SEASON_MODE,
+    DEFAULT_TEMP_STEP_CELSIUS,
+    DEFAULT_TEMP_STEP_FAHRENHEIT,
     DOMAIN,
     SEASON_MODE_CUSTOM_MONTHS,
     SEASON_MODE_HEMISPHERE,
     SEASON_MODE_TEMP_ONLY,
 )
+
+
+def _default_temp_step(hass: HomeAssistant) -> float:
+    """Sane default step for the dial, based on HA's system-wide unit.
+
+    Only the default is unit-derived — the field itself stays editable per
+    zone, since some actuators only accept whole-degree steps regardless
+    of the display unit.
+    """
+    if hass.config.units.temperature_unit == UnitOfTemperature.FAHRENHEIT:
+        return DEFAULT_TEMP_STEP_FAHRENHEIT
+    return DEFAULT_TEMP_STEP_CELSIUS
 
 
 def _hub_schema(defaults: dict[str, Any]) -> vol.Schema:
@@ -91,35 +107,67 @@ def _hub_schema(defaults: dict[str, Any]) -> vol.Schema:
     )
 
 
-def _zone_schema(defaults: dict[str, Any]) -> vol.Schema:
+def _zone_schema(hass: HomeAssistant, defaults: dict[str, Any]) -> vol.Schema:
+    """Schema for both creating a new zone and reconfiguring an existing one.
+
+    `defaults` pre-fills every field from the zone's current stored values
+    when editing; an empty dict gives the create-new-zone behavior.
+    """
     return vol.Schema(
         {
             vol.Required(CONF_ZONE_NAME, default=defaults.get(CONF_ZONE_NAME, "")): str,
-            vol.Optional(CONF_HEAT_ENTITY): selector.EntitySelector(
+            vol.Optional(
+                CONF_HEAT_ENTITY, default=defaults.get(CONF_HEAT_ENTITY)
+            ): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain=["climate", "switch"])
             ),
-            vol.Optional(CONF_HEAT_SCALE, default=1.0): vol.Coerce(float),
-            vol.Optional(CONF_HEAT_OFFSET, default=0.0): vol.Coerce(float),
-            vol.Optional(CONF_COOL_ENTITY): selector.EntitySelector(
+            vol.Optional(CONF_HEAT_SCALE, default=defaults.get(CONF_HEAT_SCALE, 1.0)): vol.Coerce(float),
+            vol.Optional(CONF_HEAT_OFFSET, default=defaults.get(CONF_HEAT_OFFSET, 0.0)): vol.Coerce(float),
+            vol.Optional(
+                CONF_COOL_ENTITY, default=defaults.get(CONF_COOL_ENTITY)
+            ): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain=["climate", "switch"])
             ),
-            vol.Optional(CONF_COOL_SCALE, default=1.0): vol.Coerce(float),
-            vol.Optional(CONF_COOL_OFFSET, default=0.0): vol.Coerce(float),
-            vol.Optional(CONF_COOL_FAN_ENTITIES): selector.EntitySelector(
+            vol.Optional(CONF_COOL_SCALE, default=defaults.get(CONF_COOL_SCALE, 1.0)): vol.Coerce(float),
+            vol.Optional(CONF_COOL_OFFSET, default=defaults.get(CONF_COOL_OFFSET, 0.0)): vol.Coerce(float),
+            vol.Optional(
+                CONF_COOL_FAN_ENTITIES, default=defaults.get(CONF_COOL_FAN_ENTITIES, [])
+            ): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="fan", multiple=True)
             ),
-            vol.Optional(CONF_ZONE_INDOOR_SENSOR): selector.EntitySelector(
+            vol.Optional(
+                CONF_ZONE_INDOOR_SENSOR, default=defaults.get(CONF_ZONE_INDOOR_SENSOR)
+            ): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor", device_class="temperature")
             ),
-            vol.Optional(CONF_ZONE_OUTDOOR_SENSOR_OVERRIDE): selector.EntitySelector(
+            vol.Optional(
+                CONF_ZONE_OUTDOOR_SENSOR_OVERRIDE,
+                default=defaults.get(CONF_ZONE_OUTDOOR_SENSOR_OVERRIDE),
+            ): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain=["sensor", "weather"])
             ),
-            vol.Optional(CONF_COOL_MIN, default=DEFAULT_COOL_MIN): vol.Coerce(float),
-            vol.Optional(CONF_COOL_RELAXED, default=DEFAULT_COOL_RELAXED): vol.Coerce(float),
-            vol.Optional(CONF_COOL_MAX, default=DEFAULT_COOL_MAX): vol.Coerce(float),
-            vol.Optional(CONF_HEAT_MIN, default=DEFAULT_HEAT_MIN): vol.Coerce(float),
-            vol.Optional(CONF_HEAT_RELAXED, default=DEFAULT_HEAT_RELAXED): vol.Coerce(float),
-            vol.Optional(CONF_HEAT_MAX, default=DEFAULT_HEAT_MAX): vol.Coerce(float),
+            vol.Optional(
+                CONF_ZONE_TEMP_STEP,
+                default=defaults.get(CONF_ZONE_TEMP_STEP, _default_temp_step(hass)),
+            ): vol.In([0.5, 1.0]),
+            vol.Optional(
+                CONF_COOL_MIN, default=defaults.get(CONF_COOL_MIN, DEFAULT_COOL_MIN)
+            ): vol.Coerce(float),
+            vol.Optional(
+                CONF_COOL_RELAXED, default=defaults.get(CONF_COOL_RELAXED, DEFAULT_COOL_RELAXED)
+            ): vol.Coerce(float),
+            vol.Optional(
+                CONF_COOL_MAX, default=defaults.get(CONF_COOL_MAX, DEFAULT_COOL_MAX)
+            ): vol.Coerce(float),
+            vol.Optional(
+                CONF_HEAT_MIN, default=defaults.get(CONF_HEAT_MIN, DEFAULT_HEAT_MIN)
+            ): vol.Coerce(float),
+            vol.Optional(
+                CONF_HEAT_RELAXED, default=defaults.get(CONF_HEAT_RELAXED, DEFAULT_HEAT_RELAXED)
+            ): vol.Coerce(float),
+            vol.Optional(
+                CONF_HEAT_MAX, default=defaults.get(CONF_HEAT_MAX, DEFAULT_HEAT_MAX)
+            ): vol.Coerce(float),
         }
     )
 
@@ -154,7 +202,7 @@ class SmartDualThermostatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_zone_add_another()
 
         return self.async_show_form(
-            step_id="zone", data_schema=_zone_schema({}), errors=errors
+            step_id="zone", data_schema=_zone_schema(self.hass, {}), errors=errors
         )
 
     async def async_step_zone_add_another(
@@ -189,11 +237,12 @@ class SmartDualThermostatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class SmartDualThermostatOptionsFlow(config_entries.OptionsFlow):
-    """Edit hub settings or add a new zone to an existing entry."""
+    """Edit hub settings, add a new zone, or reconfigure an existing one."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         self._config_entry = config_entry
         self._zones: list[dict[str, Any]] = list(config_entry.data.get(CONF_ZONES, []))
+        self._editing_zone_id: str | None = None
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -201,40 +250,70 @@ class SmartDualThermostatOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             new_data = {**self._config_entry.data, **user_input}
             self.hass.config_entries.async_update_entry(self._config_entry, data=new_data)
-            return await self.async_step_add_zone()
+            return await self.async_step_manage_zones()
 
         return self.async_show_form(
             step_id="init", data_schema=_hub_schema(self._config_entry.data)
         )
 
-    async def async_step_add_zone(
+    async def async_step_manage_zones(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
+        """Menu: add a new zone, reconfigure an existing one, or finish."""
         if user_input is not None:
-            if user_input.get("add_zone"):
+            choice = user_input["action"]
+            if choice == "add":
                 return await self.async_step_zone()
-            return self.async_create_entry(title="", data={})
+            if choice == "done":
+                return self.async_create_entry(title="", data={})
+            # Any other choice is an existing zone_id -> edit it.
+            self._editing_zone_id = choice
+            return await self.async_step_zone()
+
+        zone_choices = {
+            zone[CONF_ZONE_ID]: zone[CONF_ZONE_NAME] for zone in self._zones
+        }
+        options = {"add": "Add a new zone", **zone_choices, "done": "Done"}
 
         return self.async_show_form(
-            step_id="add_zone",
-            data_schema=vol.Schema({vol.Required("add_zone", default=False): bool}),
+            step_id="manage_zones",
+            data_schema=vol.Schema(
+                {vol.Required("action"): vol.In(options)}
+            ),
         )
 
     async def async_step_zone(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
+        existing_zone = None
+        if self._editing_zone_id is not None:
+            existing_zone = next(
+                (z for z in self._zones if z[CONF_ZONE_ID] == self._editing_zone_id), None
+            )
+
         errors: dict[str, str] = {}
         if user_input is not None:
             if not user_input.get(CONF_HEAT_ENTITY) and not user_input.get(CONF_COOL_ENTITY):
                 errors["base"] = "zone_needs_actuator"
             else:
                 zone = dict(user_input)
-                zone[CONF_ZONE_ID] = str(uuid.uuid4())[:8]
-                self._zones.append(zone)
+                if existing_zone is not None:
+                    zone[CONF_ZONE_ID] = existing_zone[CONF_ZONE_ID]
+                    self._zones = [
+                        zone if z[CONF_ZONE_ID] == zone[CONF_ZONE_ID] else z
+                        for z in self._zones
+                    ]
+                else:
+                    zone[CONF_ZONE_ID] = str(uuid.uuid4())[:8]
+                    self._zones.append(zone)
+
                 new_data = {**self._config_entry.data, CONF_ZONES: self._zones}
                 self.hass.config_entries.async_update_entry(self._config_entry, data=new_data)
-                return self.async_create_entry(title="", data={})
+                self._editing_zone_id = None
+                return await self.async_step_manage_zones()
 
         return self.async_show_form(
-            step_id="zone", data_schema=_zone_schema({}), errors=errors
+            step_id="zone",
+            data_schema=_zone_schema(self.hass, existing_zone or {}),
+            errors=errors,
         )

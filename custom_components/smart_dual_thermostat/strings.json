@@ -13,7 +13,7 @@
       },
       "zone": {
         "title": "Add a zone",
-        "description": "A zone pairs one heating actuator with one cooling actuator (e.g. a floor, or the whole house). Leave either blank if this zone only heats or only cools.",
+        "description": "A zone pairs one heating actuator with one cooling actuator (e.g. a floor, or the whole house). Leave either blank if this zone only heats or only cools. Temperature unit follows Home Assistant's own system unit.",
         "data": {
           "name": "Zone name",
           "heat_entity": "Heating actuator",
@@ -25,6 +25,7 @@
           "cool_fan_entities": "Supporting fans (cooling)",
           "indoor_sensor": "Indoor temperature sensor (optional)",
           "outdoor_sensor_override": "Outdoor sensor override (optional)",
+          "temp_step": "Dial increment",
           "cool_min": "Cool: minimum settable",
           "cool_relaxed": "Cool: relaxed maintenance point",
           "cool_max": "Cool: maximum ceiling",
@@ -59,14 +60,16 @@
           "away_entity": "Away mode entity (optional)"
         }
       },
-      "add_zone": {
-        "title": "Add another zone?",
+      "manage_zones": {
+        "title": "Manage zones",
+        "description": "Add a new zone, or pick an existing one to reconfigure its actuators, sensors and comfort ranges.",
         "data": {
-          "add_zone": "Add a new zone"
+          "action": "Zone"
         }
       },
       "zone": {
-        "title": "Add a zone",
+        "title": "Zone settings",
+        "description": "A zone pairs one heating actuator with one cooling actuator (e.g. a floor, or the whole house). Leave either blank if this zone only heats or only cools. Temperature unit follows Home Assistant's own system unit.",
         "data": {
           "name": "Zone name",
           "heat_entity": "Heating actuator",
@@ -78,6 +81,7 @@
           "cool_fan_entities": "Supporting fans (cooling)",
           "indoor_sensor": "Indoor temperature sensor (optional)",
           "outdoor_sensor_override": "Outdoor sensor override (optional)",
+          "temp_step": "Dial increment",
           "cool_min": "Cool: minimum settable",
           "cool_relaxed": "Cool: relaxed maintenance point",
           "cool_max": "Cool: maximum ceiling",

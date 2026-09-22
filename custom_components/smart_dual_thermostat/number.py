@@ -9,8 +9,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from homeassistant.components.number import NumberEntity, NumberMode
+from homeassistant.components.number import NumberDeviceClass, NumberEntity, NumberMode
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -51,8 +52,12 @@ async def async_setup_entry(
 
 class ComfortRangeNumber(NumberEntity):
     _attr_has_entity_name = True
-    _attr_native_unit_of_measurement = "°C"
-    _attr_native_step = 0.5
+    # Values are always stored internally in Celsius (matching the
+    # clamp/relax math in coordinator.py). device_class TEMPERATURE makes
+    # HA's number platform auto-convert display/input to the user's
+    # configured system unit (°C or °F) the same way climate entities do.
+    _attr_device_class = NumberDeviceClass.TEMPERATURE
+    _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
     _attr_mode = NumberMode.BOX
     _attr_should_poll = False
 
@@ -63,6 +68,7 @@ class ComfortRangeNumber(NumberEntity):
         self._attr_unique_id = f"{entry.entry_id}_{coordinator.config.zone_id}_{field.key}"
         self._attr_native_min_value = field.min_value
         self._attr_native_max_value = field.max_value
+        self._attr_native_step = coordinator.config.temp_step
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{entry.entry_id}_{coordinator.config.zone_id}")},
         )

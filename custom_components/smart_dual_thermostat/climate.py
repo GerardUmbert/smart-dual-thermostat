@@ -52,7 +52,6 @@ async def async_setup_entry(
 class SmartDualThermostatZone(ClimateEntity):
     _attr_has_entity_name = True
     _attr_name = None
-    _attr_temperature_unit = "°C"
     _attr_hvac_modes = [HVACMode.OFF, HVACMode.AUTO, HVACMode.HEAT, HVACMode.COOL]
     _attr_supported_features = (
         ClimateEntityFeature.TARGET_TEMPERATURE
@@ -76,7 +75,13 @@ class SmartDualThermostatZone(ClimateEntity):
         self._attr_max_temp = max(
             coordinator.config.comfort.heat_max, coordinator.config.comfort.cool_max
         )
-        self._attr_target_temperature_step = 0.5
+        self._attr_target_temperature_step = coordinator.config.temp_step
+
+    @property
+    def temperature_unit(self) -> str:
+        # Always follows Home Assistant's own system-wide unit, same as
+        # every other climate integration — never configurable per zone.
+        return self.hass.config.units.temperature_unit
 
     async def async_added_to_hass(self) -> None:
         self._coordinator.on_update.append(self._handle_coordinator_update)
