@@ -12,11 +12,29 @@ cooling actuator should be controlled together as a pair.
 
 ## Why not `generic_thermostat` or `dual_smart_thermostat`?
 
-Those assume a single heater/cooler pair driven from a single sensor with
-manual mode selection. This integration adds:
+[`generic_thermostat`](https://www.home-assistant.io/integrations/generic_thermostat/)
+is HA-core, YAML-only, and drives a single switch from a single sensor —
+no dual heat/cool pairing at all.
+[`dual_smart_thermostat`](https://github.com/swingerman/ha-dual-smart-thermostat)
+is a more capable third-party HACS integration (also not core) that
+already solves "one heater + one cooler, one climate entity," plus a lot
+of HVAC-hardening features this project doesn't attempt: two-stage/aux
+heating, floor temperature limits, window/door-open shutoff, humidity/dry
+mode, presets, anti-short-cycling tolerances. It also has its own
+condition-based "Auto Mode" that can switch between heat/cool/dry/fan.
+Worth using instead if those are what you need.
 
-- **Automatic heat/cool decision** per zone, from season + live outdoor
-  temperature, with a per-zone manual override (auto/heat/cool).
+What led to this separate project rather than building on either:
+
+- **Automatic heat/cool decision from season + live outdoor temperature**,
+  not just live conditions in isolation — a single dial that defaults to
+  the season's expected mode but overrides on an atypical cold/hot day,
+  with a manual auto/heat/cool override always available per zone.
+- **Multiple independent zones in one config entry** with a repeatable
+  pairing wizard (add a zone, pick its heat/cool actuators, add another) —
+  `dual_smart_thermostat` is one heater/cooler pair per instance, so a
+  per-floor setup means configuring and maintaining N separate instances
+  by hand.
 - **Safe comfort ranges** (min / relaxed / max per mode) that clamp
   whatever target you set, and auto-relax the target once it's reached
   (efficiency in cooling, a safety ceiling in heating).
@@ -25,9 +43,7 @@ manual mode selection. This integration adds:
   its mode instead of fighting it on the next re-evaluation.
 - **Per-actuator scale/offset correction**, for devices that don't report
   temperature in real degrees C (a known quirk on some Tuya-based
-  thermostats).
-- **Multiple independent zones** in one config entry, each pairing its
-  own heat/cool actuators.
+  thermostats) — neither of the above handles this.
 
 ## Installation
 
