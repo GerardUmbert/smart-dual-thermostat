@@ -61,7 +61,10 @@ Copy `custom_components/smart_dual_thermostat/` into your HA
 ## Setup
 
 Settings -> Devices & services -> Add integration -> "Smart Dual
-Thermostat".
+Thermostat". See [`SETUP.md`](SETUP.md) for the full field-by-field
+reference (every config flow field, its key name, type, and default) —
+useful when following along with an agent or scripting against HA's
+config flow API.
 
 1. **Hub step**: default outdoor sensor (a `sensor` or `weather` entity),
    season detection strategy, optional notification service, optional
