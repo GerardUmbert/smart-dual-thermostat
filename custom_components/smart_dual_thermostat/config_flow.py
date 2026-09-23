@@ -23,6 +23,8 @@ from homeassistant.helpers import selector
 
 from .const import (
     CONF_AWAY_ENTITY,
+    CONF_COMBINED_OFFSET,
+    CONF_COMBINED_SCALE,
     CONF_COOL_ENTITY,
     CONF_COOL_FAN_ENTITIES,
     CONF_COOL_MAX,
@@ -45,6 +47,8 @@ from .const import (
     CONF_NOTIFY_SERVICE,
     CONF_OUTDOOR_SENSOR,
     CONF_SEASON_MODE,
+    CONF_ZONE_COMBINED_ENTITY,
+    CONF_ZONE_DISPLAY_ENTITY,
     CONF_ZONE_ID,
     CONF_ZONE_INDOOR_SENSOR,
     CONF_ZONE_NAME,
@@ -184,6 +188,21 @@ def _zone_schema(hass: HomeAssistant, defaults: dict[str, Any]) -> vol.Schema:
             ),
             vol.Optional(CONF_COOL_SCALE, default=defaults.get(CONF_COOL_SCALE, 1.0)): vol.Coerce(float),
             vol.Optional(CONF_COOL_OFFSET, default=defaults.get(CONF_COOL_OFFSET, 0.0)): vol.Coerce(float),
+            # Alternative to heat_entity/cool_entity above: ONE classic
+            # dual-circuit thermostat with its own manual heat/cool switch.
+            # Mutually exclusive with heat_entity/cool_entity — validated
+            # in async_step_zone, not expressible in this static schema.
+            vol.Optional(
+                CONF_ZONE_COMBINED_ENTITY, default=defaults.get(CONF_ZONE_COMBINED_ENTITY)
+            ): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="climate")
+            ),
+            vol.Optional(
+                CONF_COMBINED_SCALE, default=defaults.get(CONF_COMBINED_SCALE, 1.0)
+            ): vol.Coerce(float),
+            vol.Optional(
+                CONF_COMBINED_OFFSET, default=defaults.get(CONF_COMBINED_OFFSET, 0.0)
+            ): vol.Coerce(float),
             vol.Optional(
                 CONF_COOL_FAN_ENTITIES, default=defaults.get(CONF_COOL_FAN_ENTITIES, [])
             ): selector.EntitySelector(
@@ -199,6 +218,11 @@ def _zone_schema(hass: HomeAssistant, defaults: dict[str, Any]) -> vol.Schema:
                 default=defaults.get(CONF_ZONE_OUTDOOR_SENSOR_OVERRIDE),
             ): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain=["sensor", "weather"])
+            ),
+            vol.Optional(
+                CONF_ZONE_DISPLAY_ENTITY, default=defaults.get(CONF_ZONE_DISPLAY_ENTITY)
+            ): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="climate")
             ),
             vol.Optional(
                 CONF_ZONE_TEMP_STEP,
@@ -226,6 +250,18 @@ def _zone_schema(hass: HomeAssistant, defaults: dict[str, Any]) -> vol.Schema:
     )
 
 
+def _validate_zone_actuators(user_input: dict[str, Any]) -> str | None:
+    """Return an error code if the actuator fields are invalid, else None."""
+    has_combined = bool(user_input.get(CONF_ZONE_COMBINED_ENTITY))
+    has_heat = bool(user_input.get(CONF_HEAT_ENTITY))
+    has_cool = bool(user_input.get(CONF_COOL_ENTITY))
+    if has_combined and (has_heat or has_cool):
+        return "combined_conflicts_with_separate"
+    if not has_combined and not has_heat and not has_cool:
+        return "zone_needs_actuator"
+    return None
+
+
 class SmartDualThermostatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
@@ -247,8 +283,9 @@ class SmartDualThermostatConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> config_entries.ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            if not user_input.get(CONF_HEAT_ENTITY) and not user_input.get(CONF_COOL_ENTITY):
-                errors["base"] = "zone_needs_actuator"
+            error_code = _validate_zone_actuators(user_input)
+            if error_code:
+                errors["base"] = error_code
             else:
                 zone = dict(user_input)
                 zone[CONF_ZONE_ID] = str(uuid.uuid4())[:8]
@@ -347,8 +384,9 @@ class SmartDualThermostatOptionsFlow(config_entries.OptionsFlow):
 
         errors: dict[str, str] = {}
         if user_input is not None:
-            if not user_input.get(CONF_HEAT_ENTITY) and not user_input.get(CONF_COOL_ENTITY):
-                errors["base"] = "zone_needs_actuator"
+            error_code = _validate_zone_actuators(user_input)
+            if error_code:
+                errors["base"] = error_code
             else:
                 zone = dict(user_input)
                 if existing_zone is not None:

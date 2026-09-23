@@ -28,9 +28,13 @@
           "cool_entity": "Cooling actuator",
           "cool_scale": "Cooling actuator scale correction",
           "cool_offset": "Cooling actuator offset correction",
+          "combined_entity": "OR — one dual-circuit thermostat (optional) — a single device with its own manual heat/cool switch and one relay, instead of separate heating/cooling actuators above",
+          "combined_scale": "Dual-circuit thermostat scale correction",
+          "combined_offset": "Dual-circuit thermostat offset correction",
           "cool_fan_entities": "Supporting fans (cooling)",
           "indoor_sensor": "Indoor temperature sensor (optional)",
           "outdoor_sensor_override": "Outdoor sensor override (optional)",
+          "display_entity": "Display thermostat (optional) — a mode-agnostic climate entity, e.g. a standalone Zigbee/WiFi thermostat wired to nothing, used purely as a physical dial for this zone",
           "temp_step": "Dial increment",
           "cool_min": "Cool: minimum settable",
           "cool_relaxed": "Cool: relaxed maintenance point",
@@ -49,7 +53,8 @@
       }
     },
     "error": {
-      "zone_needs_actuator": "A zone needs at least a heating or a cooling actuator."
+      "zone_needs_actuator": "A zone needs at least a heating actuator, a cooling actuator, or a dual-circuit thermostat.",
+      "combined_conflicts_with_separate": "Use either the dual-circuit thermostat OR separate heating/cooling actuators, not both."
     },
     "abort": {
       "already_configured": "Already configured"
@@ -90,9 +95,13 @@
           "cool_entity": "Cooling actuator",
           "cool_scale": "Cooling actuator scale correction",
           "cool_offset": "Cooling actuator offset correction",
+          "combined_entity": "OR — one dual-circuit thermostat (optional) — a single device with its own manual heat/cool switch and one relay, instead of separate heating/cooling actuators above",
+          "combined_scale": "Dual-circuit thermostat scale correction",
+          "combined_offset": "Dual-circuit thermostat offset correction",
           "cool_fan_entities": "Supporting fans (cooling)",
           "indoor_sensor": "Indoor temperature sensor (optional)",
           "outdoor_sensor_override": "Outdoor sensor override (optional)",
+          "display_entity": "Display thermostat (optional) — a mode-agnostic climate entity, e.g. a standalone Zigbee/WiFi thermostat wired to nothing, used purely as a physical dial for this zone",
           "temp_step": "Dial increment",
           "cool_min": "Cool: minimum settable",
           "cool_relaxed": "Cool: relaxed maintenance point",
@@ -104,7 +113,8 @@
       }
     },
     "error": {
-      "zone_needs_actuator": "A zone needs at least a heating or a cooling actuator."
+      "zone_needs_actuator": "A zone needs at least a heating actuator, a cooling actuator, or a dual-circuit thermostat.",
+      "combined_conflicts_with_separate": "Use either the dual-circuit thermostat OR separate heating/cooling actuators, not both."
     }
   },
   "selector": {

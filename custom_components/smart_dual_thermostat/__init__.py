@@ -32,6 +32,10 @@ from .const import (
     CONF_NOTIFY_SERVICE,
     CONF_OUTDOOR_SENSOR,
     CONF_SEASON_MODE,
+    CONF_COMBINED_OFFSET,
+    CONF_COMBINED_SCALE,
+    CONF_ZONE_COMBINED_ENTITY,
+    CONF_ZONE_DISPLAY_ENTITY,
     CONF_ZONE_ID,
     CONF_ZONE_INDOOR_SENSOR,
     CONF_ZONE_NAME,
@@ -79,6 +83,19 @@ def _build_zone_coordinator(hass: HomeAssistant, entry: ConfigEntry, zone_data: 
         heat_relaxed=zone_data[CONF_HEAT_RELAXED],
         heat_max=zone_data[CONF_HEAT_MAX],
     )
+    combined_entity_id = zone_data.get(CONF_ZONE_COMBINED_ENTITY)
+    combined = (
+        ActuatorConfig(
+            entity_id=combined_entity_id,
+            entity_domain="climate",
+            correction=Correction(
+                scale=zone_data.get(CONF_COMBINED_SCALE, 1.0),
+                offset=zone_data.get(CONF_COMBINED_OFFSET, 0.0),
+            ),
+        )
+        if combined_entity_id
+        else None
+    )
     zone_config = ZoneConfig(
         zone_id=zone_data[CONF_ZONE_ID],
         name=zone_data[CONF_ZONE_NAME],
@@ -89,6 +106,8 @@ def _build_zone_coordinator(hass: HomeAssistant, entry: ConfigEntry, zone_data: 
         indoor_sensor=zone_data.get(CONF_ZONE_INDOOR_SENSOR),
         outdoor_sensor=zone_data.get(CONF_ZONE_OUTDOOR_SENSOR_OVERRIDE),
         temp_step=zone_data.get(CONF_ZONE_TEMP_STEP, DEFAULT_TEMP_STEP_CELSIUS),
+        display_entity=zone_data.get(CONF_ZONE_DISPLAY_ENTITY),
+        combined=combined,
     )
 
     return ZoneCoordinator(

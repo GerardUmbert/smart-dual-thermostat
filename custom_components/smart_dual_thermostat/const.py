@@ -41,8 +41,31 @@ CONF_COOL_OFFSET = "cool_offset"
 
 CONF_COOL_FAN_ENTITIES = "cool_fan_entities"  # list of fan.* to turn on/off alongside cooling
 
+# A single classic dual-circuit thermostat — one physical unit with its own
+# manual heat/cool switch routing one relay to either circuit, plus its own
+# temperature sensor (e.g. an old-style wall thermostat, or its smart
+# replacement that still has real heat/cool hvac_modes rather than being
+# mode-agnostic like CONF_ZONE_DISPLAY_ENTITY). Mutually exclusive with
+# CONF_HEAT_ENTITY/CONF_COOL_ENTITY — a zone uses either two separate
+# actuators, or one combined actuator, never both. Unlike the display
+# entity, this DOES drive real HVAC hardware and its reported hvac_mode is
+# trusted as genuine heat/cool intent when changed externally, since the
+# device can express that unambiguously (it has a real physical switch).
+CONF_ZONE_COMBINED_ENTITY = "combined_entity"
+CONF_COMBINED_SCALE = "combined_scale"
+CONF_COMBINED_OFFSET = "combined_offset"
+
 CONF_ZONE_OUTDOOR_SENSOR_OVERRIDE = "outdoor_sensor_override"  # falls back to hub-level CONF_OUTDOOR_SENSOR
 CONF_ZONE_INDOOR_SENSOR = "indoor_sensor"  # optional dedicated indoor temp sensor for relax detection
+
+# Optional third, mode-agnostic climate entity for this zone — e.g. a bare
+# Zigbee/WiFi thermostat wired to nothing, used purely as a physical dial.
+# Two-way synced with the zone's own desired/target, but never used to
+# decide or force heat/cool mode (unlike heat_entity/cool_entity) and never
+# itself commanded to actuate anything. Its own hvac_mode is always pinned
+# to HVACMode.AUTO so its mode selector can't be touched into forcing a
+# mode by mistake.
+CONF_ZONE_DISPLAY_ENTITY = "display_entity"
 
 CONF_ZONE_TEMP_STEP = "temp_step"  # target temperature increment for this zone's dial
 # Temperature UNIT is not configurable per zone or per hub — it always
