@@ -8,7 +8,13 @@
           "outdoor_sensor": "Default outdoor temperature sensor",
           "season_mode": "Season detection",
           "notify_service": "Notification service (optional)",
-          "away_entity": "Away mode entity (optional)"
+          "away_entity": "Away mode entity (optional)",
+          "months_cool": "Custom cooling months (only used if season detection is \"Custom month table\")",
+          "months_heat": "Custom heating months (only used if season detection is \"Custom month table\")",
+          "cool_season_heat_override_below": "Cooling season: force heat if outdoor temp drops below (°C)",
+          "heat_season_cool_override_above": "Heating season: force cool if outdoor temp rises above (°C)",
+          "neutral_cool_above": "No season default: cool if outdoor temp is above (°C)",
+          "neutral_heat_below": "No season default: heat if outdoor temp is below (°C)"
         }
       },
       "zone": {
@@ -57,7 +63,13 @@
           "outdoor_sensor": "Default outdoor temperature sensor",
           "season_mode": "Season detection",
           "notify_service": "Notification service (optional)",
-          "away_entity": "Away mode entity (optional)"
+          "away_entity": "Away mode entity (optional)",
+          "months_cool": "Custom cooling months (only used if season detection is \"Custom month table\")",
+          "months_heat": "Custom heating months (only used if season detection is \"Custom month table\")",
+          "cool_season_heat_override_below": "Cooling season: force heat if outdoor temp drops below (°C)",
+          "heat_season_cool_override_above": "Heating season: force cool if outdoor temp rises above (°C)",
+          "neutral_cool_above": "No season default: cool if outdoor temp is above (°C)",
+          "neutral_heat_below": "No season default: heat if outdoor temp is below (°C)"
         }
       },
       "manage_zones": {
@@ -101,6 +113,20 @@
         "hemisphere": "Automatic (from your location's hemisphere)",
         "custom_months": "Custom month table",
         "temp_only": "Outdoor temperature only (no season weighting)"
+      }
+    },
+    "months_cool": {
+      "options": {
+        "1": "January", "2": "February", "3": "March", "4": "April",
+        "5": "May", "6": "June", "7": "July", "8": "August",
+        "9": "September", "10": "October", "11": "November", "12": "December"
+      }
+    },
+    "months_heat": {
+      "options": {
+        "1": "January", "2": "February", "3": "March", "4": "April",
+        "5": "May", "6": "June", "7": "July", "8": "August",
+        "9": "September", "10": "October", "11": "November", "12": "December"
       }
     }
   },

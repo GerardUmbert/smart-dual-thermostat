@@ -30,12 +30,18 @@ from .const import (
     CONF_COOL_OFFSET,
     CONF_COOL_RELAXED,
     CONF_COOL_SCALE,
+    CONF_COOL_SEASON_HEAT_OVERRIDE_BELOW,
     CONF_HEAT_ENTITY,
     CONF_HEAT_MAX,
     CONF_HEAT_MIN,
     CONF_HEAT_OFFSET,
     CONF_HEAT_RELAXED,
     CONF_HEAT_SCALE,
+    CONF_HEAT_SEASON_COOL_OVERRIDE_ABOVE,
+    CONF_MONTHS_COOL,
+    CONF_MONTHS_HEAT,
+    CONF_NEUTRAL_COOL_ABOVE,
+    CONF_NEUTRAL_HEAT_BELOW,
     CONF_NOTIFY_SERVICE,
     CONF_OUTDOOR_SENSOR,
     CONF_SEASON_MODE,
@@ -48,9 +54,13 @@ from .const import (
     DEFAULT_COOL_MAX,
     DEFAULT_COOL_MIN,
     DEFAULT_COOL_RELAXED,
+    DEFAULT_COOL_SEASON_HEAT_OVERRIDE_BELOW,
     DEFAULT_HEAT_MAX,
     DEFAULT_HEAT_MIN,
     DEFAULT_HEAT_RELAXED,
+    DEFAULT_HEAT_SEASON_COOL_OVERRIDE_ABOVE,
+    DEFAULT_NEUTRAL_COOL_ABOVE,
+    DEFAULT_NEUTRAL_HEAT_BELOW,
     DEFAULT_SEASON_MODE,
     DEFAULT_TEMP_STEP_CELSIUS,
     DEFAULT_TEMP_STEP_FAHRENHEIT,
@@ -59,6 +69,8 @@ from .const import (
     SEASON_MODE_HEMISPHERE,
     SEASON_MODE_TEMP_ONLY,
 )
+
+MONTH_OPTIONS = [str(m) for m in range(1, 13)]
 
 
 def _default_temp_step(hass: HomeAssistant) -> float:
@@ -103,6 +115,48 @@ def _hub_schema(defaults: dict[str, Any]) -> vol.Schema:
             ): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain=["input_boolean", "binary_sensor"])
             ),
+            # Only read when season_mode == custom_months, but always shown
+            # here rather than behind a second conditional step.
+            vol.Optional(
+                CONF_MONTHS_COOL, default=defaults.get(CONF_MONTHS_COOL, [])
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=MONTH_OPTIONS, multiple=True, translation_key="months_cool"
+                )
+            ),
+            vol.Optional(
+                CONF_MONTHS_HEAT, default=defaults.get(CONF_MONTHS_HEAT, [])
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=MONTH_OPTIONS, multiple=True, translation_key="months_heat"
+                )
+            ),
+            # Outdoor-temperature thresholds that can override the seasonal
+            # default, or decide outright in shoulder months / temp_only
+            # mode. Defaults are tuned for a temperate climate — installs
+            # elsewhere should adjust these to their own climate.
+            vol.Optional(
+                CONF_COOL_SEASON_HEAT_OVERRIDE_BELOW,
+                default=defaults.get(
+                    CONF_COOL_SEASON_HEAT_OVERRIDE_BELOW,
+                    DEFAULT_COOL_SEASON_HEAT_OVERRIDE_BELOW,
+                ),
+            ): vol.Coerce(float),
+            vol.Optional(
+                CONF_HEAT_SEASON_COOL_OVERRIDE_ABOVE,
+                default=defaults.get(
+                    CONF_HEAT_SEASON_COOL_OVERRIDE_ABOVE,
+                    DEFAULT_HEAT_SEASON_COOL_OVERRIDE_ABOVE,
+                ),
+            ): vol.Coerce(float),
+            vol.Optional(
+                CONF_NEUTRAL_COOL_ABOVE,
+                default=defaults.get(CONF_NEUTRAL_COOL_ABOVE, DEFAULT_NEUTRAL_COOL_ABOVE),
+            ): vol.Coerce(float),
+            vol.Optional(
+                CONF_NEUTRAL_HEAT_BELOW,
+                default=defaults.get(CONF_NEUTRAL_HEAT_BELOW, DEFAULT_NEUTRAL_HEAT_BELOW),
+            ): vol.Coerce(float),
         }
     )
 

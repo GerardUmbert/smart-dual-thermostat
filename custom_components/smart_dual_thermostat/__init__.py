@@ -97,8 +97,9 @@ def _build_zone_coordinator(hass: HomeAssistant, entry: ConfigEntry, zone_data: 
         forced_mode=FORCED_MODE_AUTO,
         default_outdoor_sensor=entry.data.get(CONF_OUTDOOR_SENSOR),
         season_mode=entry.data.get(CONF_SEASON_MODE, DEFAULT_SEASON_MODE),
-        custom_cool_months=entry.data.get(CONF_MONTHS_COOL),
-        custom_heat_months=entry.data.get(CONF_MONTHS_HEAT),
+        # SelectSelector(multiple=True) stores its options as strings.
+        custom_cool_months=[int(m) for m in entry.data.get(CONF_MONTHS_COOL, [])],
+        custom_heat_months=[int(m) for m in entry.data.get(CONF_MONTHS_HEAT, [])],
         cool_season_heat_override_below=entry.data.get(
             CONF_COOL_SEASON_HEAT_OVERRIDE_BELOW, DEFAULT_COOL_SEASON_HEAT_OVERRIDE_BELOW
         ),
